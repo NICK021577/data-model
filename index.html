@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101214">
+  <title>TMIS · Data model</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%234f46e5'/%3E%3Cpath d='M8 10h16M16 10v14' stroke='white' stroke-width='3'/%3E%3C/svg%3E">
+  <script src="theme.js"></script>
+  <link rel="stylesheet" href="styles.css">
+  <script src="model-data.js" defer></script>
+  <script src="layout.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <div class="workspace">
+    <div id="explorer-hotspot" class="explorer-hotspot" aria-hidden="true"></div>
+    <button id="explorer-toggle" class="explorer-toggle" aria-controls="explorer" aria-expanded="false" title="Open tables and relationships (move to the left edge)"><span class="explorer-icon" aria-hidden="true">☰</span><span>TMIS <span class="toggle-caption">Data model</span></span></button>
+    <aside id="explorer" class="sidebar" aria-label="Model explorer" aria-hidden="true" inert>
+      <header class="explorer-header"><div><h1>TMIS <span>Data model</span></h1><div class="model-counts" id="model-counts"></div></div><button id="explorer-close" class="icon-button" aria-label="Hide explorer" title="Hide explorer">‹</button></header>
+      <div class="explorer-heading"><h2>Tables</h2><span id="table-count" class="count-badge"></span></div>
+      <div class="search-wrap"><span aria-hidden="true">⌕</span><input id="search" type="search" placeholder="Find a table or field…" aria-label="Search tables or fields" autocomplete="off"><kbd>/</kbd></div>
+      <nav id="table-list" aria-label="Tables"></nav>
+      <section class="inspector" aria-labelledby="inspector-title">
+        <div class="inspector-heading"><h2 id="inspector-title">Selection</h2><button id="clear-selection" class="text-button" disabled>Clear</button></div>
+        <div id="selection-details"></div>
+      </section>
+      <details class="source-notes"><summary>Model notes</summary><ul id="model-notes"></ul><a href="source/TMIS-schema.mmd" download>Download Mermaid source ↓</a><a class="source-link" href="source/TMIS_data_model.drawio.html" target="_blank" rel="noopener">Original diagram (v1) ↗</a></details>
+    </aside>
+    <main class="canvas-panel" aria-label="Interactive data model">
+      <div class="canvas-toolbar"><div class="schema-name"><span class="status-dot"></span><span id="schema-name"></span></div><div class="toolbar-actions"><button id="theme-toggle" type="button" aria-label="Switch to light mode" title="Switch to light mode"><span class="theme-icon" aria-hidden="true">☀</span><span class="theme-label">Light mode</span></button><button id="fit-selection" disabled>Focus selection</button><button id="fit-all" title="Fit the complete diagram (F)">Fit all <kbd>F</kbd></button><button id="fullscreen" aria-label="Enter full screen" title="Enter full screen" aria-pressed="false">⛶</button></div></div>
+      <div id="viewport" class="viewport">
+        <svg id="diagram" xmlns="http://www.w3.org/2000/svg" tabindex="0" role="group" aria-label="TMIS relationship diagram. Click a table or relationship to highlight connections. Drag to pan, scroll to zoom, or use the controls." aria-describedby="canvas-help">
+          <defs>
+            <marker id="one" viewBox="-22 -10 22 20" refX="0" refY="0" markerWidth="22" markerHeight="20" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M-7 -8V8M-14 -8V8" fill="none" stroke="context-stroke" stroke-width="2"/></marker>
+            <marker id="optional-one" viewBox="-30 -10 30 20" refX="0" refY="0" markerWidth="30" markerHeight="20" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M-7 -8V8" fill="none" stroke="context-stroke" stroke-width="2"/><circle cx="-22" cy="0" r="5" fill="var(--canvas)" stroke="context-stroke" stroke-width="2"/></marker>
+            <marker id="many" viewBox="-30 -10 30 20" refX="0" refY="0" markerWidth="30" markerHeight="20" markerUnits="userSpaceOnUse" orient="auto"><path d="M-15 0L0 -8M-15 0H0M-15 0L0 8" fill="none" stroke="context-stroke" stroke-width="2"/><circle cx="-22" cy="0" r="5" fill="var(--canvas)" stroke="context-stroke" stroke-width="2"/></marker>
+          </defs>
+          <g id="edge-layer"></g><g id="table-layer"></g>
+        </svg>
+        <div class="canvas-hint" id="canvas-help">Click to trace connections <span>·</span> Drag to pan <span>·</span> Scroll to zoom</div>
+        <div class="zoom-controls" aria-label="Zoom controls"><button id="zoom-out" aria-label="Zoom out" title="Zoom out (−)">−</button><button id="zoom-reset" title="Set zoom to 100%">100%</button><button id="zoom-in" aria-label="Zoom in" title="Zoom in (+)">+</button></div>
+      </div>
+      <footer class="canvas-footer"><div class="legend"><span><i class="legend-selected"></i>Selected</span><span><i class="legend-connected"></i>Connected</span><span class="relationship-legend">|| One · ○| Optional one · ○&lt; Many · UK Unique</span></div><span id="selection-status" role="status" aria-live="polite">All tables visible</span></footer>
+    </main>
+  </div>
+  <noscript><div class="noscript">Enable JavaScript to explore the interactive model. The original diagram is available in the source folder.</div></noscript>
+</body>
+</html>

@@ -1,0 +1,2473 @@
+{
+  "schema": "tmis_v3",
+  "source": "User-supplied TMIS Logical Data Model image, schema v3",
+  "drawnRelationshipCount": 54,
+  "groups": {
+    "tenancy": {
+      "fill": "#f1f5f9",
+      "color": "#475569"
+    },
+    "platform": {
+      "fill": "#ecfeff",
+      "color": "#0e7490"
+    },
+    "planning": {
+      "fill": "#f0fdfa",
+      "color": "#134e4a"
+    },
+    "activity": {
+      "fill": "#f0fdf4",
+      "color": "#15803d"
+    },
+    "delivery": {
+      "fill": "#fff7ed",
+      "color": "#c2410c"
+    },
+    "finance": {
+      "fill": "#fff1f2",
+      "color": "#be123c"
+    },
+    "outputs": {
+      "fill": "#faf5ff",
+      "color": "#7e22ce"
+    },
+    "messaging": {
+      "fill": "#eff6ff",
+      "color": "#1d4ed8"
+    }
+  },
+  "tables": [
+    {
+      "id": "agency",
+      "group": "tenancy",
+      "column": 0,
+      "band": 0,
+      "fields": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "key": "PK"
+        },
+        {
+          "name": "name",
+          "type": "varchar(255)",
+          "key": "UK"
+        },
+        {
+          "name": "short_name",
+          "type": "varchar(32)",
+          "key": "UK"
+        },
+        {
+          "name": "type",
+          "type": "varchar(32)"
+        },
+        {
+          "name": "region",
+          "type": "varchar(64)"
+        },
+        {
+          "name": "status",
+          "type": "varchar(20)"
+        },
+        {
+          "name": "vision",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "mission",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "mandate",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "values",
+          "type": "json",
+          "nullable": true
+        },
+        {
+          "name": "contact_email",
+          "type": "varchar(255)",
+          "nullable": true
+        },
+        {
+          "name": "logo_url",
+          "type": "varchar(500)",
+          "nullable": true
+        },
+        {
+          "name": "cover_url",
+          "type": "varchar(500)",
+          "nullable": true
+        },
+        {
+          "name": "brand_color",
+          "type": "varchar(20)",
+          "nullable": true
+        },
+        {
+          "name": "welcomed_at",
+          "type": "datetime",
+          "nullable": true
+        },
+        {
+          "name": "created_at",
+          "type": "datetime"
+        }
+      ],
+      "notes": [
+        "type: government | academic | private | non_profit",
+        "status: active | suspended"
+      ],
+      "uniqueTogether": []
+    },
+    {
+      "id": "user",
+      "group": "tenancy",
+      "column": 2,
+      "band": 0,
+      "fields": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "key": "PK"
+        },
+        {
+          "name": "email",
+          "type": "varchar(255)",
+          "key": "UK"
+        },
+        {
+          "name": "password_hash",
+          "type": "varchar(255)"
+        },
+        {
+          "name": "first_name",
+          "type": "varchar(100)"
+        },
+        {
+          "name": "middle_name",
+          "type": "varchar(100)",
+          "nullable": true
+        },
+        {
+          "name": "last_name",
+          "type": "varchar(100)"
+        },
+        {
+          "name": "contact",
+          "type": "varchar(100)",
+          "nullable": true
+        },
+        {
+          "name": "status",
+          "type": "varchar(20)"
+        },
+        {
+          "name": "is_super_admin",
+          "type": "bool"
+        },
+        {
+          "name": "must_reset_password",
+          "type": "bool"
+        },
+        {
+          "name": "last_sign_in_at",
+          "type": "datetime",
+          "nullable": true
+        },
+        {
+          "name": "created_at",
+          "type": "datetime"
+        }
+      ],
+      "notes": [
+        "status: active | suspended"
+      ],
+      "uniqueTogether": []
+    },
+    {
+      "id": "agency_application",
+      "group": "platform",
+      "column": 0,
+      "band": 1,
+      "fields": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "key": "PK"
+        },
+        {
+          "name": "agency_id",
+          "type": "uuid",
+          "key": "FK",
+          "nullable": true,
+          "references": "agency"
+        },
+        {
+          "name": "reviewed_by",
+          "type": "uuid",
+          "key": "FK",
+          "nullable": true,
+          "references": "user"
+        },
+        {
+          "name": "agency_name",
+          "type": "varchar(255)"
+        },
+        {
+          "name": "acronym",
+          "type": "varchar(32)"
+        },
+        {
+          "name": "agency_type",
+          "type": "varchar(32)"
+        },
+        {
+          "name": "region",
+          "type": "varchar(64)"
+        },
+        {
+          "name": "contact_first_name",
+          "type": "varchar(100)"
+        },
+        {
+          "name": "contact_middle_name",
+          "type": "varchar(100)",
+          "nullable": true
+        },
+        {
+          "name": "contact_last_name",
+          "type": "varchar(100)"
+        },
+        {
+          "name": "contact_email",
+          "type": "varchar(255)"
+        },
+        {
+          "name": "contact_phone",
+          "type": "varchar(30)"
+        },
+        {
+          "name": "status",
+          "type": "varchar(20)"
+        },
+        {
+          "name": "reason",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "submitted_at",
+          "type": "datetime"
+        },
+        {
+          "name": "reviewed_at",
+          "type": "datetime",
+          "nullable": true
+        }
+      ],
+      "notes": [
+        "status: pending | under_review | needs_edits | approved | rejected"
+      ],
+      "uniqueTogether": []
+    },
+    {
+      "id": "application_document",
+      "group": "platform",
+      "column": 1,
+      "band": 1,
+      "fields": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "key": "PK"
+        },
+        {
+          "name": "application_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "agency_application"
+        },
+        {
+          "name": "doc_kind",
+          "type": "varchar(32)"
+        },
+        {
+          "name": "file_name",
+          "type": "varchar(255)"
+        },
+        {
+          "name": "file_ref",
+          "type": "varchar(500)"
+        },
+        {
+          "name": "size_bytes",
+          "type": "int"
+        }
+      ],
+      "notes": [
+        "doc_kind: auth_letter | sec | valid_id"
+      ],
+      "uniqueTogether": []
+    },
+    {
+      "id": "audit_log",
+      "group": "platform",
+      "column": 2,
+      "band": 1,
+      "fields": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "key": "PK"
+        },
+        {
+          "name": "actor_id",
+          "type": "uuid",
+          "key": "FK",
+          "nullable": true,
+          "references": "user"
+        },
+        {
+          "name": "agency_id",
+          "type": "uuid",
+          "key": "FK",
+          "nullable": true,
+          "references": "agency",
+          "omitted": true
+        },
+        {
+          "name": "action",
+          "type": "varchar(64)"
+        },
+        {
+          "name": "target_type",
+          "type": "varchar(32)"
+        },
+        {
+          "name": "target_label",
+          "type": "varchar(255)",
+          "nullable": true
+        },
+        {
+          "name": "at",
+          "type": "datetime"
+        }
+      ],
+      "notes": [
+        "Append-only; written by the server on every sensitive action."
+      ],
+      "uniqueTogether": []
+    },
+    {
+      "id": "platform_default_item",
+      "group": "platform",
+      "column": 3,
+      "band": 1,
+      "fields": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "key": "PK"
+        },
+        {
+          "name": "kind",
+          "type": "varchar(32)"
+        },
+        {
+          "name": "name",
+          "type": "varchar(255)"
+        },
+        {
+          "name": "sort_order",
+          "type": "int"
+        }
+      ],
+      "notes": [
+        "kind: activity_type | document_type | budget_category",
+        "Onboarded agencies copy these defaults."
+      ],
+      "uniqueTogether": []
+    },
+    {
+      "id": "platform_setting",
+      "group": "platform",
+      "column": 4,
+      "band": 1,
+      "fields": [
+        {
+          "name": "key",
+          "type": "varchar(64)",
+          "key": "PK"
+        },
+        {
+          "name": "value",
+          "type": "json"
+        },
+        {
+          "name": "updated_at",
+          "type": "datetime"
+        }
+      ],
+      "notes": [
+        "Keys include registration and email template settings."
+      ],
+      "uniqueTogether": []
+    },
+    {
+      "id": "participant_profile",
+      "group": "tenancy",
+      "column": 0,
+      "band": 2,
+      "fields": [
+        {
+          "name": "user_id",
+          "type": "uuid",
+          "key": "PK,FK",
+          "references": "user"
+        },
+        {
+          "name": "sex",
+          "type": "varchar(10)",
+          "nullable": true
+        },
+        {
+          "name": "birth_date",
+          "type": "date",
+          "nullable": true
+        },
+        {
+          "name": "province",
+          "type": "varchar(100)",
+          "nullable": true
+        },
+        {
+          "name": "municipality",
+          "type": "varchar(100)",
+          "nullable": true
+        },
+        {
+          "name": "affiliation",
+          "type": "varchar(255)",
+          "nullable": true
+        },
+        {
+          "name": "avatar_url",
+          "type": "varchar(500)",
+          "nullable": true
+        },
+        {
+          "name": "onboarded_at",
+          "type": "datetime",
+          "nullable": true
+        }
+      ],
+      "notes": [
+        "One row per participant account; can sign up on the mobile app."
+      ],
+      "uniqueTogether": []
+    },
+    {
+      "id": "agency_role",
+      "group": "tenancy",
+      "column": 1,
+      "band": 2,
+      "fields": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "key": "PK"
+        },
+        {
+          "name": "agency_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "agency",
+          "omitted": true
+        },
+        {
+          "name": "name",
+          "type": "varchar(100)"
+        },
+        {
+          "name": "data_access",
+          "type": "varchar(32)"
+        },
+        {
+          "name": "is_system",
+          "type": "bool"
+        },
+        {
+          "name": "updated_at",
+          "type": "datetime"
+        }
+      ],
+      "notes": [
+        "Unique role name per agency.",
+        "data_access: all_records | assigned_activities | assigned_sessions"
+      ],
+      "uniqueTogether": [
+        [
+          "agency_id",
+          "name"
+        ]
+      ]
+    },
+    {
+      "id": "agency_membership",
+      "group": "tenancy",
+      "column": 2,
+      "band": 2,
+      "fields": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "key": "PK"
+        },
+        {
+          "name": "agency_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "agency",
+          "omitted": true
+        },
+        {
+          "name": "user_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "user"
+        },
+        {
+          "name": "role_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "agency_role"
+        },
+        {
+          "name": "category_id",
+          "type": "uuid",
+          "key": "FK",
+          "nullable": true,
+          "references": "participant_category"
+        },
+        {
+          "name": "affiliation",
+          "type": "varchar(255)",
+          "nullable": true
+        },
+        {
+          "name": "status",
+          "type": "varchar(20)"
+        },
+        {
+          "name": "joined_at",
+          "type": "datetime"
+        }
+      ],
+      "notes": [
+        "Unique membership per agency and user.",
+        "No category_id for staff; one role per membership.",
+        "status: invited | pending | active | suspended"
+      ],
+      "uniqueTogether": [
+        [
+          "agency_id",
+          "user_id"
+        ]
+      ]
+    },
+    {
+      "id": "participant_category",
+      "group": "tenancy",
+      "column": 3,
+      "band": 2,
+      "fields": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "key": "PK"
+        },
+        {
+          "name": "agency_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "agency",
+          "omitted": true
+        },
+        {
+          "name": "name",
+          "type": "varchar(255)"
+        }
+      ],
+      "notes": [
+        "Unique category name per agency."
+      ],
+      "uniqueTogether": [
+        [
+          "agency_id",
+          "name"
+        ]
+      ]
+    },
+    {
+      "id": "category_question",
+      "group": "tenancy",
+      "column": 4,
+      "band": 2,
+      "fields": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "key": "PK"
+        },
+        {
+          "name": "agency_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "agency",
+          "omitted": true
+        },
+        {
+          "name": "category_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "participant_category"
+        },
+        {
+          "name": "label",
+          "type": "varchar(255)"
+        },
+        {
+          "name": "sort_order",
+          "type": "int"
+        }
+      ],
+      "notes": [],
+      "uniqueTogether": []
+    },
+    {
+      "id": "membership_answer",
+      "group": "tenancy",
+      "column": 0,
+      "band": 3,
+      "fields": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "key": "PK"
+        },
+        {
+          "name": "agency_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "agency",
+          "omitted": true
+        },
+        {
+          "name": "membership_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "agency_membership"
+        },
+        {
+          "name": "question_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "category_question"
+        },
+        {
+          "name": "answer",
+          "type": "text"
+        }
+      ],
+      "notes": [],
+      "uniqueTogether": [
+        [
+          "membership_id",
+          "question_id"
+        ]
+      ]
+    },
+    {
+      "id": "invitation",
+      "group": "tenancy",
+      "column": 1,
+      "band": 3,
+      "fields": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "key": "PK"
+        },
+        {
+          "name": "agency_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "agency",
+          "omitted": true
+        },
+        {
+          "name": "code",
+          "type": "varchar(64)",
+          "key": "UK"
+        },
+        {
+          "name": "role_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "agency_role"
+        },
+        {
+          "name": "category_id",
+          "type": "uuid",
+          "key": "FK",
+          "nullable": true,
+          "references": "participant_category"
+        },
+        {
+          "name": "expires_at",
+          "type": "datetime",
+          "nullable": true
+        },
+        {
+          "name": "max_uses",
+          "type": "int",
+          "nullable": true
+        }
+      ],
+      "notes": [
+        "Staff: role_id only; category_id for participant invite."
+      ],
+      "uniqueTogether": []
+    },
+    {
+      "id": "invitation_redemption",
+      "group": "tenancy",
+      "column": 2,
+      "band": 3,
+      "fields": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "key": "PK"
+        },
+        {
+          "name": "invitation_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "invitation"
+        },
+        {
+          "name": "user_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "user"
+        },
+        {
+          "name": "redeemed_at",
+          "type": "datetime"
+        }
+      ],
+      "notes": [],
+      "uniqueTogether": [
+        [
+          "invitation_id",
+          "user_id"
+        ]
+      ]
+    },
+    {
+      "id": "agency_subscription",
+      "group": "tenancy",
+      "column": 3,
+      "band": 3,
+      "fields": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "key": "PK"
+        },
+        {
+          "name": "agency_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "agency",
+          "omitted": true
+        },
+        {
+          "name": "user_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "user",
+          "omitted": true
+        },
+        {
+          "name": "subscribed_at",
+          "type": "datetime"
+        }
+      ],
+      "notes": [
+        "Public activity feed subscription."
+      ],
+      "uniqueTogether": [
+        [
+          "agency_id",
+          "user_id"
+        ]
+      ]
+    },
+    {
+      "id": "notification",
+      "group": "tenancy",
+      "column": 4,
+      "band": 3,
+      "fields": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "key": "PK"
+        },
+        {
+          "name": "agency_id",
+          "type": "uuid",
+          "key": "FK",
+          "nullable": true,
+          "references": "agency",
+          "omitted": true
+        },
+        {
+          "name": "user_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "user",
+          "omitted": true
+        },
+        {
+          "name": "title",
+          "type": "varchar(255)"
+        },
+        {
+          "name": "body",
+          "type": "text"
+        },
+        {
+          "name": "link",
+          "type": "varchar(500)",
+          "nullable": true
+        },
+        {
+          "name": "read_at",
+          "type": "datetime",
+          "nullable": true
+        },
+        {
+          "name": "created_at",
+          "type": "datetime"
+        }
+      ],
+      "notes": [],
+      "uniqueTogether": []
+    },
+    {
+      "id": "activity_type",
+      "group": "planning",
+      "column": 0,
+      "band": 4,
+      "fields": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "key": "PK"
+        },
+        {
+          "name": "agency_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "agency",
+          "omitted": true
+        },
+        {
+          "name": "name",
+          "type": "varchar(255)"
+        }
+      ],
+      "notes": [],
+      "uniqueTogether": []
+    },
+    {
+      "id": "funding_source",
+      "group": "planning",
+      "column": 1,
+      "band": 4,
+      "fields": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "key": "PK"
+        },
+        {
+          "name": "agency_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "agency",
+          "omitted": true
+        },
+        {
+          "name": "name",
+          "type": "varchar(255)"
+        }
+      ],
+      "notes": [],
+      "uniqueTogether": []
+    },
+    {
+      "id": "annual_budget",
+      "group": "planning",
+      "column": 2,
+      "band": 4,
+      "fields": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "key": "PK"
+        },
+        {
+          "name": "agency_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "agency",
+          "omitted": true
+        },
+        {
+          "name": "funding_source_id",
+          "type": "uuid",
+          "key": "FK",
+          "nullable": true,
+          "references": "funding_source"
+        },
+        {
+          "name": "activity_type_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "activity_type"
+        },
+        {
+          "name": "year",
+          "type": "int"
+        },
+        {
+          "name": "amount",
+          "type": "decimal(14,2)"
+        }
+      ],
+      "notes": [],
+      "uniqueTogether": []
+    },
+    {
+      "id": "document_type",
+      "group": "planning",
+      "column": 3,
+      "band": 4,
+      "fields": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "key": "PK"
+        },
+        {
+          "name": "agency_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "agency",
+          "omitted": true
+        },
+        {
+          "name": "name",
+          "type": "varchar(255)"
+        },
+        {
+          "name": "required_at_creation",
+          "type": "bool"
+        }
+      ],
+      "notes": [],
+      "uniqueTogether": []
+    },
+    {
+      "id": "budget_category",
+      "group": "planning",
+      "column": 4,
+      "band": 4,
+      "fields": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "key": "PK"
+        },
+        {
+          "name": "agency_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "agency",
+          "omitted": true
+        },
+        {
+          "name": "name",
+          "type": "varchar(255)"
+        }
+      ],
+      "notes": [],
+      "uniqueTogether": []
+    },
+    {
+      "id": "calendar_entry",
+      "group": "planning",
+      "column": 0,
+      "band": 5,
+      "fields": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "key": "PK"
+        },
+        {
+          "name": "agency_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "agency",
+          "omitted": true
+        },
+        {
+          "name": "activity_type_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "activity_type"
+        },
+        {
+          "name": "funding_source_id",
+          "type": "uuid",
+          "key": "FK",
+          "nullable": true,
+          "references": "funding_source"
+        },
+        {
+          "name": "title",
+          "type": "varchar(255)"
+        },
+        {
+          "name": "planned_start",
+          "type": "date"
+        },
+        {
+          "name": "planned_end",
+          "type": "date"
+        },
+        {
+          "name": "planned_venue",
+          "type": "varchar(255)",
+          "nullable": true
+        },
+        {
+          "name": "status",
+          "type": "varchar(50)"
+        },
+        {
+          "name": "published",
+          "type": "bool"
+        }
+      ],
+      "notes": [],
+      "uniqueTogether": []
+    },
+    {
+      "id": "activity_objective",
+      "group": "activity",
+      "column": 1,
+      "band": 5,
+      "fields": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "key": "PK"
+        },
+        {
+          "name": "agency_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "agency",
+          "omitted": true
+        },
+        {
+          "name": "activity_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "activity"
+        },
+        {
+          "name": "text",
+          "type": "text"
+        },
+        {
+          "name": "sort_order",
+          "type": "int"
+        }
+      ],
+      "notes": [],
+      "uniqueTogether": []
+    },
+    {
+      "id": "activity",
+      "group": "activity",
+      "column": 2,
+      "band": 5,
+      "fields": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "key": "PK"
+        },
+        {
+          "name": "agency_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "agency",
+          "omitted": true
+        },
+        {
+          "name": "calendar_entry_id",
+          "type": "uuid",
+          "key": "FK,UK",
+          "nullable": true,
+          "references": "calendar_entry"
+        },
+        {
+          "name": "activity_type_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "activity_type"
+        },
+        {
+          "name": "funding_source_id",
+          "type": "uuid",
+          "key": "FK",
+          "nullable": true,
+          "references": "funding_source"
+        },
+        {
+          "name": "title",
+          "type": "varchar(255)"
+        },
+        {
+          "name": "venue",
+          "type": "varchar(255)",
+          "nullable": true
+        },
+        {
+          "name": "start_date",
+          "type": "date"
+        },
+        {
+          "name": "end_date",
+          "type": "date"
+        },
+        {
+          "name": "topic",
+          "type": "varchar(255)",
+          "nullable": true
+        },
+        {
+          "name": "description",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "audience",
+          "type": "varchar(255)",
+          "nullable": true
+        },
+        {
+          "name": "max_participants",
+          "type": "int",
+          "nullable": true
+        },
+        {
+          "name": "is_public",
+          "type": "bool"
+        },
+        {
+          "name": "status",
+          "type": "varchar(50)"
+        },
+        {
+          "name": "join_code",
+          "type": "varchar(32)",
+          "key": "UK",
+          "nullable": true
+        }
+      ],
+      "notes": [
+        "join_code: 6–8 characters; lowercase; enabled for public joining."
+      ],
+      "uniqueTogether": []
+    },
+    {
+      "id": "activity_outcome",
+      "group": "activity",
+      "column": 3,
+      "band": 5,
+      "fields": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "key": "PK"
+        },
+        {
+          "name": "agency_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "agency",
+          "omitted": true
+        },
+        {
+          "name": "activity_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "activity"
+        },
+        {
+          "name": "text",
+          "type": "varchar(500)"
+        },
+        {
+          "name": "sort_order",
+          "type": "int"
+        }
+      ],
+      "notes": [
+        "Planned outcomes only; actual outputs are separate."
+      ],
+      "uniqueTogether": []
+    },
+    {
+      "id": "activity_partner",
+      "group": "activity",
+      "column": 4,
+      "band": 5,
+      "fields": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "key": "PK"
+        },
+        {
+          "name": "agency_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "agency",
+          "omitted": true
+        },
+        {
+          "name": "activity_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "activity"
+        },
+        {
+          "name": "partner_agency_id",
+          "type": "uuid",
+          "key": "FK",
+          "nullable": true,
+          "references": "agency"
+        },
+        {
+          "name": "partner_name",
+          "type": "varchar(255)",
+          "nullable": true
+        },
+        {
+          "name": "role",
+          "type": "varchar(50)"
+        },
+        {
+          "name": "notes",
+          "type": "text",
+          "nullable": true
+        }
+      ],
+      "notes": [
+        "role: implementing | funding | collaborating | participating"
+      ],
+      "uniqueTogether": []
+    },
+    {
+      "id": "staffing",
+      "group": "activity",
+      "column": 0,
+      "band": 6,
+      "fields": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "key": "PK"
+        },
+        {
+          "name": "agency_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "agency",
+          "omitted": true
+        },
+        {
+          "name": "activity_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "activity"
+        },
+        {
+          "name": "user_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "user",
+          "omitted": true
+        },
+        {
+          "name": "duty_date",
+          "type": "date",
+          "nullable": true
+        },
+        {
+          "name": "staff_role",
+          "type": "varchar(50)"
+        },
+        {
+          "name": "duty",
+          "type": "varchar(255)",
+          "nullable": true
+        },
+        {
+          "name": "status",
+          "type": "varchar(50)"
+        }
+      ],
+      "notes": [
+        "staff_role: facilitator | coordinator | resource_person | support_staff"
+      ],
+      "uniqueTogether": []
+    },
+    {
+      "id": "registration",
+      "group": "activity",
+      "column": 1,
+      "band": 6,
+      "fields": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "key": "PK"
+        },
+        {
+          "name": "agency_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "agency",
+          "omitted": true
+        },
+        {
+          "name": "activity_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "activity"
+        },
+        {
+          "name": "user_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "user",
+          "omitted": true
+        },
+        {
+          "name": "status",
+          "type": "varchar(50)"
+        },
+        {
+          "name": "registered_at",
+          "type": "datetime"
+        }
+      ],
+      "notes": [],
+      "uniqueTogether": [
+        [
+          "activity_id",
+          "user_id"
+        ]
+      ]
+    },
+    {
+      "id": "certificate_rule",
+      "group": "activity",
+      "column": 2,
+      "band": 6,
+      "fields": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "key": "PK"
+        },
+        {
+          "name": "agency_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "agency",
+          "omitted": true
+        },
+        {
+          "name": "activity_id",
+          "type": "uuid",
+          "key": "FK,UK",
+          "references": "activity"
+        },
+        {
+          "name": "min_attendance_pct",
+          "type": "decimal(5,2)"
+        },
+        {
+          "name": "require_feedback",
+          "type": "bool"
+        },
+        {
+          "name": "require_reentry_plan",
+          "type": "bool"
+        },
+        {
+          "name": "require_output",
+          "type": "bool"
+        }
+      ],
+      "notes": [],
+      "uniqueTogether": []
+    },
+    {
+      "id": "certificate",
+      "group": "activity",
+      "column": 3,
+      "band": 6,
+      "fields": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "key": "PK"
+        },
+        {
+          "name": "agency_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "agency",
+          "omitted": true
+        },
+        {
+          "name": "activity_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "activity"
+        },
+        {
+          "name": "user_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "user",
+          "omitted": true
+        },
+        {
+          "name": "certificate_no",
+          "type": "varchar(64)",
+          "key": "UK"
+        },
+        {
+          "name": "file_ref",
+          "type": "varchar(500)",
+          "nullable": true
+        },
+        {
+          "name": "status",
+          "type": "varchar(20)"
+        },
+        {
+          "name": "released_at",
+          "type": "datetime",
+          "nullable": true
+        }
+      ],
+      "notes": [
+        "status: eligible | released | revoked"
+      ],
+      "uniqueTogether": []
+    },
+    {
+      "id": "resource",
+      "group": "finance",
+      "column": 4,
+      "band": 6,
+      "fields": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "key": "PK"
+        },
+        {
+          "name": "agency_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "agency",
+          "omitted": true
+        },
+        {
+          "name": "activity_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "activity"
+        },
+        {
+          "name": "budget_item_id",
+          "type": "uuid",
+          "key": "FK",
+          "nullable": true,
+          "references": "budget_item"
+        },
+        {
+          "name": "resource_type",
+          "type": "varchar(50)"
+        },
+        {
+          "name": "name",
+          "type": "varchar(255)"
+        },
+        {
+          "name": "unit",
+          "type": "varchar(50)"
+        },
+        {
+          "name": "qty_needed",
+          "type": "decimal(12,2)"
+        },
+        {
+          "name": "qty_allocated",
+          "type": "decimal(12,2)",
+          "nullable": true
+        },
+        {
+          "name": "status",
+          "type": "varchar(30)"
+        }
+      ],
+      "notes": [
+        "status: requested | reserved | issued | returned"
+      ],
+      "uniqueTogether": []
+    },
+    {
+      "id": "session",
+      "group": "delivery",
+      "column": 0,
+      "band": 7,
+      "fields": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "key": "PK"
+        },
+        {
+          "name": "agency_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "agency",
+          "omitted": true
+        },
+        {
+          "name": "activity_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "activity"
+        },
+        {
+          "name": "resource_person_id",
+          "type": "uuid",
+          "key": "FK",
+          "nullable": true,
+          "references": "user",
+          "omitted": true
+        },
+        {
+          "name": "title",
+          "type": "varchar(255)"
+        },
+        {
+          "name": "session_type",
+          "type": "varchar(20)"
+        },
+        {
+          "name": "session_date",
+          "type": "date"
+        },
+        {
+          "name": "period",
+          "type": "varchar(10)"
+        },
+        {
+          "name": "start_time",
+          "type": "time",
+          "nullable": true
+        },
+        {
+          "name": "end_time",
+          "type": "time",
+          "nullable": true
+        },
+        {
+          "name": "room",
+          "type": "varchar(255)",
+          "nullable": true
+        },
+        {
+          "name": "description",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "qr_token",
+          "type": "varchar(128)",
+          "key": "UK",
+          "nullable": true
+        },
+        {
+          "name": "short_code",
+          "type": "varchar(16)",
+          "nullable": true
+        },
+        {
+          "name": "opens_at",
+          "type": "datetime",
+          "nullable": true
+        },
+        {
+          "name": "closes_at",
+          "type": "datetime",
+          "nullable": true
+        },
+        {
+          "name": "feedback_opens_at",
+          "type": "datetime",
+          "nullable": true
+        }
+      ],
+      "notes": [
+        "Unique session slot per activity, date, period.",
+        "period: AM | PM",
+        "session_type: session | workshop | practicum | meeting"
+      ],
+      "uniqueTogether": [
+        [
+          "activity_id",
+          "session_date",
+          "period"
+        ]
+      ]
+    },
+    {
+      "id": "material",
+      "group": "delivery",
+      "column": 1,
+      "band": 7,
+      "fields": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "key": "PK"
+        },
+        {
+          "name": "agency_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "agency",
+          "omitted": true
+        },
+        {
+          "name": "activity_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "activity"
+        },
+        {
+          "name": "session_id",
+          "type": "uuid",
+          "key": "FK",
+          "nullable": true,
+          "references": "session"
+        },
+        {
+          "name": "uploaded_by",
+          "type": "uuid",
+          "key": "FK",
+          "references": "user",
+          "omitted": true
+        },
+        {
+          "name": "title",
+          "type": "varchar(255)"
+        },
+        {
+          "name": "kind",
+          "type": "varchar(20)"
+        },
+        {
+          "name": "file_ref",
+          "type": "varchar(500)",
+          "nullable": true
+        },
+        {
+          "name": "url",
+          "type": "varchar(500)",
+          "nullable": true
+        },
+        {
+          "name": "size_bytes",
+          "type": "int",
+          "nullable": true
+        },
+        {
+          "name": "uploaded_at",
+          "type": "datetime"
+        }
+      ],
+      "notes": [
+        "kind: pdf | ppt | word | image | handout | link"
+      ],
+      "uniqueTogether": []
+    },
+    {
+      "id": "document",
+      "group": "delivery",
+      "column": 2,
+      "band": 7,
+      "fields": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "key": "PK"
+        },
+        {
+          "name": "agency_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "agency",
+          "omitted": true
+        },
+        {
+          "name": "activity_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "activity"
+        },
+        {
+          "name": "session_id",
+          "type": "uuid",
+          "key": "FK",
+          "nullable": true,
+          "references": "session"
+        },
+        {
+          "name": "doc_type_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "document_type"
+        },
+        {
+          "name": "uploaded_by",
+          "type": "uuid",
+          "key": "FK",
+          "references": "user",
+          "omitted": true
+        },
+        {
+          "name": "file_name",
+          "type": "varchar(255)"
+        },
+        {
+          "name": "file_ref",
+          "type": "varchar(500)"
+        },
+        {
+          "name": "size_bytes",
+          "type": "int"
+        },
+        {
+          "name": "uploaded_at",
+          "type": "datetime"
+        }
+      ],
+      "notes": [
+        "Agency records: reports, MOAs, signed sheets and receipts."
+      ],
+      "uniqueTogether": []
+    },
+    {
+      "id": "feedback_question",
+      "group": "delivery",
+      "column": 3,
+      "band": 7,
+      "fields": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "key": "PK"
+        },
+        {
+          "name": "agency_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "agency",
+          "omitted": true
+        },
+        {
+          "name": "activity_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "activity"
+        },
+        {
+          "name": "text",
+          "type": "text"
+        },
+        {
+          "name": "qtype",
+          "type": "varchar(20)"
+        },
+        {
+          "name": "options",
+          "type": "json",
+          "nullable": true
+        },
+        {
+          "name": "required",
+          "type": "bool"
+        },
+        {
+          "name": "sort_order",
+          "type": "int"
+        }
+      ],
+      "notes": [
+        "qtype: rating | choice | text"
+      ],
+      "uniqueTogether": []
+    },
+    {
+      "id": "budget_item",
+      "group": "finance",
+      "column": 4,
+      "band": 7,
+      "fields": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "key": "PK"
+        },
+        {
+          "name": "agency_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "agency",
+          "omitted": true
+        },
+        {
+          "name": "activity_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "activity"
+        },
+        {
+          "name": "category_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "budget_category"
+        },
+        {
+          "name": "funding_source_id",
+          "type": "uuid",
+          "key": "FK",
+          "nullable": true,
+          "references": "funding_source"
+        },
+        {
+          "name": "description",
+          "type": "text"
+        },
+        {
+          "name": "qty",
+          "type": "decimal(12,2)"
+        },
+        {
+          "name": "unit_cost",
+          "type": "decimal(14,2)"
+        }
+      ],
+      "notes": [
+        "Estimate is qty × unit_cost."
+      ],
+      "uniqueTogether": []
+    },
+    {
+      "id": "attendance",
+      "group": "delivery",
+      "column": 0,
+      "band": 8,
+      "fields": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "key": "PK"
+        },
+        {
+          "name": "agency_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "agency",
+          "omitted": true
+        },
+        {
+          "name": "session_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "session"
+        },
+        {
+          "name": "user_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "user",
+          "omitted": true
+        },
+        {
+          "name": "recorded_by",
+          "type": "uuid",
+          "key": "FK",
+          "nullable": true,
+          "references": "user",
+          "omitted": true
+        },
+        {
+          "name": "client_id",
+          "type": "varchar(64)",
+          "key": "UK"
+        },
+        {
+          "name": "direction",
+          "type": "varchar(10)"
+        },
+        {
+          "name": "method",
+          "type": "varchar(30)"
+        },
+        {
+          "name": "device_created_at",
+          "type": "datetime"
+        },
+        {
+          "name": "server_received_at",
+          "type": "datetime",
+          "nullable": true
+        },
+        {
+          "name": "sync_status",
+          "type": "varchar(30)"
+        }
+      ],
+      "notes": [
+        "direction: in | out",
+        "client_id makes offline sync idempotent."
+      ],
+      "uniqueTogether": []
+    },
+    {
+      "id": "feedback",
+      "group": "delivery",
+      "column": 1,
+      "band": 8,
+      "fields": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "key": "PK"
+        },
+        {
+          "name": "agency_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "agency",
+          "omitted": true
+        },
+        {
+          "name": "session_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "session"
+        },
+        {
+          "name": "user_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "user",
+          "omitted": true
+        },
+        {
+          "name": "client_id",
+          "type": "varchar(64)",
+          "key": "UK"
+        },
+        {
+          "name": "rating",
+          "type": "int"
+        },
+        {
+          "name": "comments",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "is_anonymous",
+          "type": "bool"
+        },
+        {
+          "name": "submitted_at",
+          "type": "datetime"
+        }
+      ],
+      "notes": [
+        "Anonymous responses retain user_id for completion checks."
+      ],
+      "uniqueTogether": [
+        [
+          "session_id",
+          "user_id"
+        ]
+      ]
+    },
+    {
+      "id": "feedback_answer",
+      "group": "delivery",
+      "column": 2,
+      "band": 8,
+      "fields": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "key": "PK"
+        },
+        {
+          "name": "agency_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "agency",
+          "omitted": true
+        },
+        {
+          "name": "feedback_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "feedback"
+        },
+        {
+          "name": "question_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "feedback_question"
+        },
+        {
+          "name": "rating_value",
+          "type": "int",
+          "nullable": true
+        },
+        {
+          "name": "text_value",
+          "type": "text",
+          "nullable": true
+        }
+      ],
+      "notes": [],
+      "uniqueTogether": [
+        [
+          "feedback_id",
+          "question_id"
+        ]
+      ]
+    },
+    {
+      "id": "actual_cost",
+      "group": "finance",
+      "column": 3,
+      "band": 8,
+      "fields": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "key": "PK"
+        },
+        {
+          "name": "agency_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "agency",
+          "omitted": true
+        },
+        {
+          "name": "budget_item_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "budget_item"
+        },
+        {
+          "name": "receipt_document_id",
+          "type": "uuid",
+          "key": "FK",
+          "nullable": true,
+          "references": "document"
+        },
+        {
+          "name": "recorded_by",
+          "type": "uuid",
+          "key": "FK",
+          "references": "user",
+          "omitted": true
+        },
+        {
+          "name": "amount",
+          "type": "decimal(14,2)"
+        },
+        {
+          "name": "incurred_on",
+          "type": "date"
+        }
+      ],
+      "notes": [],
+      "uniqueTogether": []
+    },
+    {
+      "id": "reentry_plan",
+      "group": "outputs",
+      "column": 4,
+      "band": 8,
+      "fields": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "key": "PK"
+        },
+        {
+          "name": "agency_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "agency",
+          "omitted": true
+        },
+        {
+          "name": "activity_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "activity"
+        },
+        {
+          "name": "user_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "user",
+          "omitted": true
+        },
+        {
+          "name": "client_id",
+          "type": "varchar(64)",
+          "key": "UK"
+        },
+        {
+          "name": "summary",
+          "type": "varchar(255)"
+        },
+        {
+          "name": "timeline",
+          "type": "varchar(255)"
+        },
+        {
+          "name": "details",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "expected_result",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "support_needed",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "file_ref",
+          "type": "varchar(500)",
+          "nullable": true
+        },
+        {
+          "name": "status",
+          "type": "varchar(20)"
+        },
+        {
+          "name": "submitted_at",
+          "type": "datetime"
+        }
+      ],
+      "notes": [
+        "status: pending | submitted"
+      ],
+      "uniqueTogether": [
+        [
+          "activity_id",
+          "user_id"
+        ]
+      ]
+    },
+    {
+      "id": "output_submission",
+      "group": "outputs",
+      "column": 0,
+      "band": 9,
+      "fields": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "key": "PK"
+        },
+        {
+          "name": "agency_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "agency",
+          "omitted": true
+        },
+        {
+          "name": "activity_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "activity"
+        },
+        {
+          "name": "session_id",
+          "type": "uuid",
+          "key": "FK",
+          "nullable": true,
+          "references": "session"
+        },
+        {
+          "name": "user_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "user",
+          "omitted": true
+        },
+        {
+          "name": "client_id",
+          "type": "varchar(64)",
+          "key": "UK"
+        },
+        {
+          "name": "title",
+          "type": "varchar(255)"
+        },
+        {
+          "name": "kind",
+          "type": "varchar(20)"
+        },
+        {
+          "name": "file_ref",
+          "type": "varchar(500)"
+        },
+        {
+          "name": "size_bytes",
+          "type": "int"
+        },
+        {
+          "name": "submitted_at",
+          "type": "datetime"
+        }
+      ],
+      "notes": [
+        "kind: photo | file | video; uploaded from the mobile app."
+      ],
+      "uniqueTogether": []
+    },
+    {
+      "id": "message_group",
+      "group": "messaging",
+      "column": 1,
+      "band": 9,
+      "fields": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "key": "PK"
+        },
+        {
+          "name": "agency_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "agency",
+          "omitted": true
+        },
+        {
+          "name": "activity_id",
+          "type": "uuid",
+          "key": "FK",
+          "nullable": true,
+          "references": "activity"
+        },
+        {
+          "name": "name",
+          "type": "varchar(255)"
+        },
+        {
+          "name": "scope",
+          "type": "varchar(50)"
+        },
+        {
+          "name": "archived",
+          "type": "bool"
+        }
+      ],
+      "notes": [
+        "scope: all | activity | agency"
+      ],
+      "uniqueTogether": []
+    },
+    {
+      "id": "group_member",
+      "group": "messaging",
+      "column": 2,
+      "band": 9,
+      "fields": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "key": "PK"
+        },
+        {
+          "name": "agency_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "agency",
+          "omitted": true
+        },
+        {
+          "name": "group_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "message_group"
+        },
+        {
+          "name": "user_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "user",
+          "omitted": true
+        },
+        {
+          "name": "muted",
+          "type": "bool"
+        },
+        {
+          "name": "last_read_at",
+          "type": "datetime",
+          "nullable": true
+        },
+        {
+          "name": "joined_at",
+          "type": "datetime"
+        }
+      ],
+      "notes": [
+        "last_read_at drives unread count."
+      ],
+      "uniqueTogether": [
+        [
+          "group_id",
+          "user_id"
+        ]
+      ]
+    },
+    {
+      "id": "message",
+      "group": "messaging",
+      "column": 3,
+      "band": 9,
+      "fields": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "key": "PK"
+        },
+        {
+          "name": "agency_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "agency",
+          "omitted": true
+        },
+        {
+          "name": "group_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "message_group"
+        },
+        {
+          "name": "sender_id",
+          "type": "uuid",
+          "key": "FK",
+          "references": "user",
+          "omitted": true
+        },
+        {
+          "name": "removed_by",
+          "type": "uuid",
+          "key": "FK",
+          "nullable": true,
+          "references": "user",
+          "omitted": true
+        },
+        {
+          "name": "body",
+          "type": "text"
+        },
+        {
+          "name": "sent_at",
+          "type": "datetime"
+        },
+        {
+          "name": "removed",
+          "type": "bool"
+        }
+      ],
+      "notes": [],
+      "uniqueTogether": []
+    }
+  ],
+  "notes": [
+    "TMIS Logical Data Model: schema v3, transcribed from the supplied reference image.",
+    "46 entities; the reference draws 54 relationships. Tenant agency_id and most user_id / *_by connectors are omitted in the image for readability; all foreign keys remain explorable here.",
+    "PK marks a primary key; FK marks a foreign key; UK marks a unique field. Nullable field names are italic.",
+    "A parent connector is optional when its foreign key is nullable. A unique foreign key allows at most one child.",
+    "client_id is an offline synchronization identifier, not a reference to another entity.",
+    "The original draw.io and v2 override files remain archived references; the downloadable Mermaid source describes v3."
+  ]
+}

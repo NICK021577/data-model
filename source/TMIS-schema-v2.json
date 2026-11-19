@@ -1,0 +1,61 @@
+{
+  "schema": "tmis_v2",
+  "source": "User-supplied TMIS Logical Data Model, schema v2 (2026-11-11)",
+  "drawnRelationshipCount": 60,
+  "typeReplacements": { "char(36)": "uuid", "tinyint(1)": "bool", "int(11)": "int" },
+  "renames": { "activity": { "objectives": "objective" } },
+  "uniqueFields": {
+    "agency": ["name"],
+    "user": ["email"],
+    "activity": ["calendar_entry_id", "join_code"],
+    "certificate_rule": ["activity_id"],
+    "session": ["qr_token"],
+    "attendance": ["client_id"],
+    "feedback": ["client_id"],
+    "invitation": ["code"],
+    "certificate": ["certificate_no"],
+    "reentry_plan": ["client_id"]
+  },
+  "nullableFields": {
+    "agency": ["description", "logo_url", "brand_color"],
+    "user": ["contact", "affiliation", "is_super_admin"],
+    "annual_budget": ["funding_source_id"],
+    "calendar_entry": ["funding_source_id", "planned_venue", "published"],
+    "activity": ["calendar_entry_id", "funding_source_id", "funding_type", "venue", "topic", "objective", "expected_outcome", "max_participants", "join_code"],
+    "budget_item": ["funding_source_id"],
+    "actual_cost": ["receipt_document_id"],
+    "resource": ["budget_item_id", "qty_allocated"],
+    "session": ["qr_token", "short_code", "opens_at", "closes_at"],
+    "program_flow": ["resource_person_id", "description"],
+    "attendance": ["server_received_at"],
+    "document": ["session_id"],
+    "invitation": ["expires_at", "max_uses"],
+    "certificate": ["file_ref"],
+    "message_group": ["archived"],
+    "message": ["removed_by"]
+  },
+  "uniqueTogether": {
+    "session": [["activity_id", "session_date", "period"]],
+    "activity_partner": [["activity_id", "partner_agency_id"]]
+  },
+  "tableNotes": {
+    "agency": ["category: government_agency | academic_institution | international_entity | private_sector"],
+    "session": ["period: AM | PM"],
+    "program_flow": ["end_time > start_time"]
+  },
+  "omittedTenantLinks": ["session", "budget_item", "message_group", "output", "staffing", "registration", "reentry_plan", "certificate", "certificate_rule", "document", "resource", "program_flow", "attendance", "feedback", "group_member", "message", "output_photo", "actual_cost"],
+  "notes": [
+    "TMIS Logical Data Model: schema v2, transcribed from the supplied reference diagram.",
+    "31 entities and 213 fields; no entities merged or removed.",
+    "The reference draws 60 relationships and omits 18 agency_id tenant links for readability. All 78 foreign-key relationships remain available here.",
+    "UUID, bool and int are logical type notation; this update does not migrate a database.",
+    "UK marks a unique field. Nullable field names are italic; nullability also appears in field details.",
+    "activity.calendar_entry_id and certificate_rule.activity_id are unique foreign keys (at most one child per parent).",
+    "Relationship labels identify the foreign-key field in the child table. Optional parents correspond to nullable foreign keys.",
+    "Child minimum counts remain zero where the reference does not establish mandatory child existence.",
+    "client_id is a unique UUID in attendance, feedback and reentry_plan; no client entity or foreign-key relationship is shown.",
+    "Composite uniqueness: session(activity_id, session_date, period); activity_partner(activity_id, partner_agency_id).",
+    "session.period: AM | PM. program_flow requires end_time > start_time.",
+    "The original draw.io file remains an archived v1 reference. The downloadable Mermaid source describes v2."
+  ]
+}

@@ -1,0 +1,660 @@
+erDiagram
+    %% TMIS Logical Data Model: schema v3, transcribed from the supplied reference image.
+    %% 46 entities; the reference draws 54 relationships. Tenant agency_id and most user_id / *_by connectors are omitted in the image for readability; all foreign keys remain explorable here.
+    %% PK marks a primary key; FK marks a foreign key; UK marks a unique field. Nullable field names are italic.
+    %% A parent connector is optional when its foreign key is nullable. A unique foreign key allows at most one child.
+    %% client_id is an offline synchronization identifier, not a reference to another entity.
+    %% The original draw.io and v2 override files remain archived references; the downloadable Mermaid source describes v3.
+
+    %% agency: type: government | academic | private | non_profit
+    %% agency: status: active | suspended
+    agency {
+        uuid id PK "not null"
+        varchar(255) name UK "not null"
+        varchar(32) short_name UK "not null"
+        varchar(32) type "not null"
+        varchar(64) region "not null"
+        varchar(20) status "not null"
+        text vision "nullable"
+        text mission "nullable"
+        text mandate "nullable"
+        json values "nullable"
+        varchar(255) contact_email "nullable"
+        varchar(500) logo_url "nullable"
+        varchar(500) cover_url "nullable"
+        varchar(20) brand_color "nullable"
+        datetime welcomed_at "nullable"
+        datetime created_at "not null"
+    }
+
+    %% user: status: active | suspended
+    user {
+        uuid id PK "not null"
+        varchar(255) email UK "not null"
+        varchar(255) password_hash "not null"
+        varchar(100) first_name "not null"
+        varchar(100) middle_name "nullable"
+        varchar(100) last_name "not null"
+        varchar(100) contact "nullable"
+        varchar(20) status "not null"
+        bool is_super_admin "not null"
+        bool must_reset_password "not null"
+        datetime last_sign_in_at "nullable"
+        datetime created_at "not null"
+    }
+
+    %% agency_application: status: pending | under_review | needs_edits | approved | rejected
+    agency_application {
+        uuid id PK "not null"
+        uuid agency_id FK "nullable"
+        uuid reviewed_by FK "nullable"
+        varchar(255) agency_name "not null"
+        varchar(32) acronym "not null"
+        varchar(32) agency_type "not null"
+        varchar(64) region "not null"
+        varchar(100) contact_first_name "not null"
+        varchar(100) contact_middle_name "nullable"
+        varchar(100) contact_last_name "not null"
+        varchar(255) contact_email "not null"
+        varchar(30) contact_phone "not null"
+        varchar(20) status "not null"
+        text reason "nullable"
+        datetime submitted_at "not null"
+        datetime reviewed_at "nullable"
+    }
+
+    %% application_document: doc_kind: auth_letter | sec | valid_id
+    application_document {
+        uuid id PK "not null"
+        uuid application_id FK "not null"
+        varchar(32) doc_kind "not null"
+        varchar(255) file_name "not null"
+        varchar(500) file_ref "not null"
+        int size_bytes "not null"
+    }
+
+    %% audit_log: Append-only; written by the server on every sensitive action.
+    audit_log {
+        uuid id PK "not null"
+        uuid actor_id FK "nullable"
+        uuid agency_id FK "nullable"
+        varchar(64) action "not null"
+        varchar(32) target_type "not null"
+        varchar(255) target_label "nullable"
+        datetime at "not null"
+    }
+
+    %% platform_default_item: kind: activity_type | document_type | budget_category
+    %% platform_default_item: Onboarded agencies copy these defaults.
+    platform_default_item {
+        uuid id PK "not null"
+        varchar(32) kind "not null"
+        varchar(255) name "not null"
+        int sort_order "not null"
+    }
+
+    %% platform_setting: Keys include registration and email template settings.
+    platform_setting {
+        varchar(64) key PK "not null"
+        json value "not null"
+        datetime updated_at "not null"
+    }
+
+    %% participant_profile: One row per participant account; can sign up on the mobile app.
+    participant_profile {
+        uuid user_id PK,FK "not null"
+        varchar(10) sex "nullable"
+        date birth_date "nullable"
+        varchar(100) province "nullable"
+        varchar(100) municipality "nullable"
+        varchar(255) affiliation "nullable"
+        varchar(500) avatar_url "nullable"
+        datetime onboarded_at "nullable"
+    }
+
+    %% UNIQUE agency_role(agency_id, name)
+    %% agency_role: Unique role name per agency.
+    %% agency_role: data_access: all_records | assigned_activities | assigned_sessions
+    agency_role {
+        uuid id PK "not null"
+        uuid agency_id FK "not null"
+        varchar(100) name "not null"
+        varchar(32) data_access "not null"
+        bool is_system "not null"
+        datetime updated_at "not null"
+    }
+
+    %% UNIQUE agency_membership(agency_id, user_id)
+    %% agency_membership: Unique membership per agency and user.
+    %% agency_membership: No category_id for staff; one role per membership.
+    %% agency_membership: status: invited | pending | active | suspended
+    agency_membership {
+        uuid id PK "not null"
+        uuid agency_id FK "not null"
+        uuid user_id FK "not null"
+        uuid role_id FK "not null"
+        uuid category_id FK "nullable"
+        varchar(255) affiliation "nullable"
+        varchar(20) status "not null"
+        datetime joined_at "not null"
+    }
+
+    %% UNIQUE participant_category(agency_id, name)
+    %% participant_category: Unique category name per agency.
+    participant_category {
+        uuid id PK "not null"
+        uuid agency_id FK "not null"
+        varchar(255) name "not null"
+    }
+
+    category_question {
+        uuid id PK "not null"
+        uuid agency_id FK "not null"
+        uuid category_id FK "not null"
+        varchar(255) label "not null"
+        int sort_order "not null"
+    }
+
+    %% UNIQUE membership_answer(membership_id, question_id)
+    membership_answer {
+        uuid id PK "not null"
+        uuid agency_id FK "not null"
+        uuid membership_id FK "not null"
+        uuid question_id FK "not null"
+        text answer "not null"
+    }
+
+    %% invitation: Staff: role_id only; category_id for participant invite.
+    invitation {
+        uuid id PK "not null"
+        uuid agency_id FK "not null"
+        varchar(64) code UK "not null"
+        uuid role_id FK "not null"
+        uuid category_id FK "nullable"
+        datetime expires_at "nullable"
+        int max_uses "nullable"
+    }
+
+    %% UNIQUE invitation_redemption(invitation_id, user_id)
+    invitation_redemption {
+        uuid id PK "not null"
+        uuid invitation_id FK "not null"
+        uuid user_id FK "not null"
+        datetime redeemed_at "not null"
+    }
+
+    %% UNIQUE agency_subscription(agency_id, user_id)
+    %% agency_subscription: Public activity feed subscription.
+    agency_subscription {
+        uuid id PK "not null"
+        uuid agency_id FK "not null"
+        uuid user_id FK "not null"
+        datetime subscribed_at "not null"
+    }
+
+    notification {
+        uuid id PK "not null"
+        uuid agency_id FK "nullable"
+        uuid user_id FK "not null"
+        varchar(255) title "not null"
+        text body "not null"
+        varchar(500) link "nullable"
+        datetime read_at "nullable"
+        datetime created_at "not null"
+    }
+
+    activity_type {
+        uuid id PK "not null"
+        uuid agency_id FK "not null"
+        varchar(255) name "not null"
+    }
+
+    funding_source {
+        uuid id PK "not null"
+        uuid agency_id FK "not null"
+        varchar(255) name "not null"
+    }
+
+    annual_budget {
+        uuid id PK "not null"
+        uuid agency_id FK "not null"
+        uuid funding_source_id FK "nullable"
+        uuid activity_type_id FK "not null"
+        int year "not null"
+        decimal(14,2) amount "not null"
+    }
+
+    document_type {
+        uuid id PK "not null"
+        uuid agency_id FK "not null"
+        varchar(255) name "not null"
+        bool required_at_creation "not null"
+    }
+
+    budget_category {
+        uuid id PK "not null"
+        uuid agency_id FK "not null"
+        varchar(255) name "not null"
+    }
+
+    calendar_entry {
+        uuid id PK "not null"
+        uuid agency_id FK "not null"
+        uuid activity_type_id FK "not null"
+        uuid funding_source_id FK "nullable"
+        varchar(255) title "not null"
+        date planned_start "not null"
+        date planned_end "not null"
+        varchar(255) planned_venue "nullable"
+        varchar(50) status "not null"
+        bool published "not null"
+    }
+
+    activity_objective {
+        uuid id PK "not null"
+        uuid agency_id FK "not null"
+        uuid activity_id FK "not null"
+        text text "not null"
+        int sort_order "not null"
+    }
+
+    %% activity: join_code: 6–8 characters; lowercase; enabled for public joining.
+    activity {
+        uuid id PK "not null"
+        uuid agency_id FK "not null"
+        uuid calendar_entry_id FK,UK "nullable"
+        uuid activity_type_id FK "not null"
+        uuid funding_source_id FK "nullable"
+        varchar(255) title "not null"
+        varchar(255) venue "nullable"
+        date start_date "not null"
+        date end_date "not null"
+        varchar(255) topic "nullable"
+        text description "nullable"
+        varchar(255) audience "nullable"
+        int max_participants "nullable"
+        bool is_public "not null"
+        varchar(50) status "not null"
+        varchar(32) join_code UK "nullable"
+    }
+
+    %% activity_outcome: Planned outcomes only; actual outputs are separate.
+    activity_outcome {
+        uuid id PK "not null"
+        uuid agency_id FK "not null"
+        uuid activity_id FK "not null"
+        varchar(500) text "not null"
+        int sort_order "not null"
+    }
+
+    %% activity_partner: role: implementing | funding | collaborating | participating
+    activity_partner {
+        uuid id PK "not null"
+        uuid agency_id FK "not null"
+        uuid activity_id FK "not null"
+        uuid partner_agency_id FK "nullable"
+        varchar(255) partner_name "nullable"
+        varchar(50) role "not null"
+        text notes "nullable"
+    }
+
+    %% staffing: staff_role: facilitator | coordinator | resource_person | support_staff
+    staffing {
+        uuid id PK "not null"
+        uuid agency_id FK "not null"
+        uuid activity_id FK "not null"
+        uuid user_id FK "not null"
+        date duty_date "nullable"
+        varchar(50) staff_role "not null"
+        varchar(255) duty "nullable"
+        varchar(50) status "not null"
+    }
+
+    %% UNIQUE registration(activity_id, user_id)
+    registration {
+        uuid id PK "not null"
+        uuid agency_id FK "not null"
+        uuid activity_id FK "not null"
+        uuid user_id FK "not null"
+        varchar(50) status "not null"
+        datetime registered_at "not null"
+    }
+
+    certificate_rule {
+        uuid id PK "not null"
+        uuid agency_id FK "not null"
+        uuid activity_id FK,UK "not null"
+        decimal(5,2) min_attendance_pct "not null"
+        bool require_feedback "not null"
+        bool require_reentry_plan "not null"
+        bool require_output "not null"
+    }
+
+    %% certificate: status: eligible | released | revoked
+    certificate {
+        uuid id PK "not null"
+        uuid agency_id FK "not null"
+        uuid activity_id FK "not null"
+        uuid user_id FK "not null"
+        varchar(64) certificate_no UK "not null"
+        varchar(500) file_ref "nullable"
+        varchar(20) status "not null"
+        datetime released_at "nullable"
+    }
+
+    %% resource: status: requested | reserved | issued | returned
+    resource {
+        uuid id PK "not null"
+        uuid agency_id FK "not null"
+        uuid activity_id FK "not null"
+        uuid budget_item_id FK "nullable"
+        varchar(50) resource_type "not null"
+        varchar(255) name "not null"
+        varchar(50) unit "not null"
+        decimal(12,2) qty_needed "not null"
+        decimal(12,2) qty_allocated "nullable"
+        varchar(30) status "not null"
+    }
+
+    %% UNIQUE session(activity_id, session_date, period)
+    %% session: Unique session slot per activity, date, period.
+    %% session: period: AM | PM
+    %% session: session_type: session | workshop | practicum | meeting
+    session {
+        uuid id PK "not null"
+        uuid agency_id FK "not null"
+        uuid activity_id FK "not null"
+        uuid resource_person_id FK "nullable"
+        varchar(255) title "not null"
+        varchar(20) session_type "not null"
+        date session_date "not null"
+        varchar(10) period "not null"
+        time start_time "nullable"
+        time end_time "nullable"
+        varchar(255) room "nullable"
+        text description "nullable"
+        varchar(128) qr_token UK "nullable"
+        varchar(16) short_code "nullable"
+        datetime opens_at "nullable"
+        datetime closes_at "nullable"
+        datetime feedback_opens_at "nullable"
+    }
+
+    %% material: kind: pdf | ppt | word | image | handout | link
+    material {
+        uuid id PK "not null"
+        uuid agency_id FK "not null"
+        uuid activity_id FK "not null"
+        uuid session_id FK "nullable"
+        uuid uploaded_by FK "not null"
+        varchar(255) title "not null"
+        varchar(20) kind "not null"
+        varchar(500) file_ref "nullable"
+        varchar(500) url "nullable"
+        int size_bytes "nullable"
+        datetime uploaded_at "not null"
+    }
+
+    %% document: Agency records: reports, MOAs, signed sheets and receipts.
+    document {
+        uuid id PK "not null"
+        uuid agency_id FK "not null"
+        uuid activity_id FK "not null"
+        uuid session_id FK "nullable"
+        uuid doc_type_id FK "not null"
+        uuid uploaded_by FK "not null"
+        varchar(255) file_name "not null"
+        varchar(500) file_ref "not null"
+        int size_bytes "not null"
+        datetime uploaded_at "not null"
+    }
+
+    %% feedback_question: qtype: rating | choice | text
+    feedback_question {
+        uuid id PK "not null"
+        uuid agency_id FK "not null"
+        uuid activity_id FK "not null"
+        text text "not null"
+        varchar(20) qtype "not null"
+        json options "nullable"
+        bool required "not null"
+        int sort_order "not null"
+    }
+
+    %% budget_item: Estimate is qty × unit_cost.
+    budget_item {
+        uuid id PK "not null"
+        uuid agency_id FK "not null"
+        uuid activity_id FK "not null"
+        uuid category_id FK "not null"
+        uuid funding_source_id FK "nullable"
+        text description "not null"
+        decimal(12,2) qty "not null"
+        decimal(14,2) unit_cost "not null"
+    }
+
+    %% attendance: direction: in | out
+    %% attendance: client_id makes offline sync idempotent.
+    attendance {
+        uuid id PK "not null"
+        uuid agency_id FK "not null"
+        uuid session_id FK "not null"
+        uuid user_id FK "not null"
+        uuid recorded_by FK "nullable"
+        varchar(64) client_id UK "not null"
+        varchar(10) direction "not null"
+        varchar(30) method "not null"
+        datetime device_created_at "not null"
+        datetime server_received_at "nullable"
+        varchar(30) sync_status "not null"
+    }
+
+    %% UNIQUE feedback(session_id, user_id)
+    %% feedback: Anonymous responses retain user_id for completion checks.
+    feedback {
+        uuid id PK "not null"
+        uuid agency_id FK "not null"
+        uuid session_id FK "not null"
+        uuid user_id FK "not null"
+        varchar(64) client_id UK "not null"
+        int rating "not null"
+        text comments "nullable"
+        bool is_anonymous "not null"
+        datetime submitted_at "not null"
+    }
+
+    %% UNIQUE feedback_answer(feedback_id, question_id)
+    feedback_answer {
+        uuid id PK "not null"
+        uuid agency_id FK "not null"
+        uuid feedback_id FK "not null"
+        uuid question_id FK "not null"
+        int rating_value "nullable"
+        text text_value "nullable"
+    }
+
+    actual_cost {
+        uuid id PK "not null"
+        uuid agency_id FK "not null"
+        uuid budget_item_id FK "not null"
+        uuid receipt_document_id FK "nullable"
+        uuid recorded_by FK "not null"
+        decimal(14,2) amount "not null"
+        date incurred_on "not null"
+    }
+
+    %% UNIQUE reentry_plan(activity_id, user_id)
+    %% reentry_plan: status: pending | submitted
+    reentry_plan {
+        uuid id PK "not null"
+        uuid agency_id FK "not null"
+        uuid activity_id FK "not null"
+        uuid user_id FK "not null"
+        varchar(64) client_id UK "not null"
+        varchar(255) summary "not null"
+        varchar(255) timeline "not null"
+        text details "nullable"
+        text expected_result "nullable"
+        text support_needed "nullable"
+        varchar(500) file_ref "nullable"
+        varchar(20) status "not null"
+        datetime submitted_at "not null"
+    }
+
+    %% output_submission: kind: photo | file | video; uploaded from the mobile app.
+    output_submission {
+        uuid id PK "not null"
+        uuid agency_id FK "not null"
+        uuid activity_id FK "not null"
+        uuid session_id FK "nullable"
+        uuid user_id FK "not null"
+        varchar(64) client_id UK "not null"
+        varchar(255) title "not null"
+        varchar(20) kind "not null"
+        varchar(500) file_ref "not null"
+        int size_bytes "not null"
+        datetime submitted_at "not null"
+    }
+
+    %% message_group: scope: all | activity | agency
+    message_group {
+        uuid id PK "not null"
+        uuid agency_id FK "not null"
+        uuid activity_id FK "nullable"
+        varchar(255) name "not null"
+        varchar(50) scope "not null"
+        bool archived "not null"
+    }
+
+    %% UNIQUE group_member(group_id, user_id)
+    %% group_member: last_read_at drives unread count.
+    group_member {
+        uuid id PK "not null"
+        uuid agency_id FK "not null"
+        uuid group_id FK "not null"
+        uuid user_id FK "not null"
+        bool muted "not null"
+        datetime last_read_at "nullable"
+        datetime joined_at "not null"
+    }
+
+    message {
+        uuid id PK "not null"
+        uuid agency_id FK "not null"
+        uuid group_id FK "not null"
+        uuid sender_id FK "not null"
+        uuid removed_by FK "nullable"
+        text body "not null"
+        datetime sent_at "not null"
+        bool removed "not null"
+    }
+
+    agency |o..o{ agency_application : agency_id
+    user |o..o{ agency_application : reviewed_by
+    agency_application ||..o{ application_document : application_id
+    user |o..o{ audit_log : actor_id
+    agency |o..o{ audit_log : agency_id
+    user ||..o| participant_profile : user_id
+    agency ||..o{ agency_role : agency_id
+    agency ||..o{ agency_membership : agency_id
+    user ||..o{ agency_membership : user_id
+    agency_role ||..o{ agency_membership : role_id
+    participant_category |o..o{ agency_membership : category_id
+    agency ||..o{ participant_category : agency_id
+    agency ||..o{ category_question : agency_id
+    participant_category ||..o{ category_question : category_id
+    agency ||..o{ membership_answer : agency_id
+    agency_membership ||..o{ membership_answer : membership_id
+    category_question ||..o{ membership_answer : question_id
+    agency ||..o{ invitation : agency_id
+    agency_role ||..o{ invitation : role_id
+    participant_category |o..o{ invitation : category_id
+    invitation ||..o{ invitation_redemption : invitation_id
+    user ||..o{ invitation_redemption : user_id
+    agency ||..o{ agency_subscription : agency_id
+    user ||..o{ agency_subscription : user_id
+    agency |o..o{ notification : agency_id
+    user ||..o{ notification : user_id
+    agency ||..o{ activity_type : agency_id
+    agency ||..o{ funding_source : agency_id
+    agency ||..o{ annual_budget : agency_id
+    funding_source |o..o{ annual_budget : funding_source_id
+    activity_type ||..o{ annual_budget : activity_type_id
+    agency ||..o{ document_type : agency_id
+    agency ||..o{ budget_category : agency_id
+    agency ||..o{ calendar_entry : agency_id
+    activity_type ||..o{ calendar_entry : activity_type_id
+    funding_source |o..o{ calendar_entry : funding_source_id
+    agency ||..o{ activity_objective : agency_id
+    activity ||..o{ activity_objective : activity_id
+    agency ||..o{ activity : agency_id
+    calendar_entry |o..o| activity : calendar_entry_id
+    activity_type ||..o{ activity : activity_type_id
+    funding_source |o..o{ activity : funding_source_id
+    agency ||..o{ activity_outcome : agency_id
+    activity ||..o{ activity_outcome : activity_id
+    agency ||..o{ activity_partner : agency_id
+    activity ||..o{ activity_partner : activity_id
+    agency |o..o{ activity_partner : partner_agency_id
+    agency ||..o{ staffing : agency_id
+    activity ||..o{ staffing : activity_id
+    user ||..o{ staffing : user_id
+    agency ||..o{ registration : agency_id
+    activity ||..o{ registration : activity_id
+    user ||..o{ registration : user_id
+    agency ||..o{ certificate_rule : agency_id
+    activity ||..o| certificate_rule : activity_id
+    agency ||..o{ certificate : agency_id
+    activity ||..o{ certificate : activity_id
+    user ||..o{ certificate : user_id
+    agency ||..o{ resource : agency_id
+    activity ||..o{ resource : activity_id
+    budget_item |o..o{ resource : budget_item_id
+    agency ||..o{ session : agency_id
+    activity ||..o{ session : activity_id
+    user |o..o{ session : resource_person_id
+    agency ||..o{ material : agency_id
+    activity ||..o{ material : activity_id
+    session |o..o{ material : session_id
+    user ||..o{ material : uploaded_by
+    agency ||..o{ document : agency_id
+    activity ||..o{ document : activity_id
+    session |o..o{ document : session_id
+    document_type ||..o{ document : doc_type_id
+    user ||..o{ document : uploaded_by
+    agency ||..o{ feedback_question : agency_id
+    activity ||..o{ feedback_question : activity_id
+    agency ||..o{ budget_item : agency_id
+    activity ||..o{ budget_item : activity_id
+    budget_category ||..o{ budget_item : category_id
+    funding_source |o..o{ budget_item : funding_source_id
+    agency ||..o{ attendance : agency_id
+    session ||..o{ attendance : session_id
+    user ||..o{ attendance : user_id
+    user |o..o{ attendance : recorded_by
+    agency ||..o{ feedback : agency_id
+    session ||..o{ feedback : session_id
+    user ||..o{ feedback : user_id
+    agency ||..o{ feedback_answer : agency_id
+    feedback ||..o{ feedback_answer : feedback_id
+    feedback_question ||..o{ feedback_answer : question_id
+    agency ||..o{ actual_cost : agency_id
+    budget_item ||..o{ actual_cost : budget_item_id
+    document |o..o{ actual_cost : receipt_document_id
+    user ||..o{ actual_cost : recorded_by
+    agency ||..o{ reentry_plan : agency_id
+    activity ||..o{ reentry_plan : activity_id
+    user ||..o{ reentry_plan : user_id
+    agency ||..o{ output_submission : agency_id
+    activity ||..o{ output_submission : activity_id
+    session |o..o{ output_submission : session_id
+    user ||..o{ output_submission : user_id
+    agency ||..o{ message_group : agency_id
+    activity |o..o{ message_group : activity_id
+    agency ||..o{ group_member : agency_id
+    message_group ||..o{ group_member : group_id
+    user ||..o{ group_member : user_id
+    agency ||..o{ message : agency_id
+    message_group ||..o{ message : group_id
+    user ||..o{ message : sender_id
+    user |o..o{ message : removed_by
