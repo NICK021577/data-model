@@ -11,15 +11,16 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const context = { window: {} };
 vm.runInNewContext(await readFile(path.join(root, 'model-data.js'), 'utf8'), context);
 const model = JSON.parse(JSON.stringify(context.window.TMIS_MODEL));
-const revisionBytes = await readFile(path.join(root, 'source', 'TMIS-schema-v3.json'));
+const original = await readFile(path.join(root, 'source', 'TMIS_data_model.drawio.html'));
+assert.equal(createHash('sha256').update(original).digest('hex'), model.sourceSha256);
+const revisionBytes = await readFile(path.join(root, 'source', 'TMIS-schema-v2.json'));
 assert.equal(createHash('sha256').update(revisionBytes).digest('hex'), model.revisionSha256);
 const revision = JSON.parse(revisionBytes);
-assert.equal(model.schema, 'tmis_v3');
-assert.equal(model.tables.length, 46);
-assert.equal(model.tables.reduce((sum, table) => sum + table.rows.length, 0), 355);
-assert.equal(model.relationships.length, 109);
-assert.equal(new Set(model.relationships.map((edge) => edge.id)).size, 109);
-assert.deepEqual(model.tables.map(t => t.id), revision.tables.map(t => t.id));
+assert.equal(model.schema, 'tmis_v2');
+assert.equal(model.tables.length, 31);
+assert.equal(model.tables.reduce((sum, table) => sum + table.rows.length, 0), 213);
+assert.equal(model.relationships.length, 78);
+assert.equal(new Set(model.relationships.map((edge) => edge.id)).size, 78);
 
 // Compare every field and relationship with the current downloadable Mermaid.
 const mermaid = await readFile(path.join(root, 'source', 'TMIS-schema.mmd'), 'utf8');
@@ -34,33 +35,21 @@ for (const [, name, body] of schemaTables) {
     return [match[1], match[2], match[3] || '', match[4] || ''];
   });
   assert.deepEqual(table.rows.map((row) => [row.cells[0].value, row.cells[1].value, row.cells[2].value, [...row.cells.slice(3).map(cell => cell.value).filter(Boolean), row.nullable ? 'nullable' : 'not null'].join('; ')]), fields, name);
-  const definition = revision.tables.find(t => t.id === name);
-  assert.deepEqual(table.uniqueTogether, definition.uniqueTogether || [], `${name} composite uniqueness`);
-  assert.deepEqual(table.rows.map(r => [r.cells[0].value, r.cells[1].value, r.cells[2].value, r.nullable]), definition.fields.map(f => [f.type, f.name, f.key || '', !!f.nullable]), `${name} transcription`);
-  assert.equal(new Set(definition.fields.map(f => f.name)).size, definition.fields.length, `${name} duplicate fields`);
-  assert.equal(definition.fields.filter(f => (f.key || '').includes('PK')).length, 1, `${name} primary key`);
-  for (const unique of table.uniqueTogether) for (const field of unique) assert.ok(definition.fields.some(f => f.name === field), `${name}.${field} unique field exists`);
+  assert.deepEqual(table.uniqueTogether, revision.uniqueTogether[name] || [], `${name} composite uniqueness`);
   for (const row of table.rows) {
     const field = row.cells[1].value;
-    const spec = definition.fields.find(f => f.name === field);
-    const edge = model.relationships.find(e => e.target === name && e.label === field);
-    assert.equal(!!edge, !!spec.references, `${name}.${field} foreign key`);
-    if (edge) {
-      assert.equal(edge.source, spec.references);
-      assert.ok(model.tables.some(t => t.id === edge.source), 'Foreign key target exists');
-      assert.equal(edge.parentOptional, !!spec.nullable);
-      assert.equal(edge.childUnique, (spec.key || '').includes('UK') || spec.key === 'PK,FK');
-      assert.equal(edge.omittedInReference, !!spec.omitted);
-    }
+    assert.equal(row.nullable, (revision.nullableFields[name] || []).includes(field), `${name}.${field} nullability`);
+    assert.equal(row.cells[2].value.split(',').includes('UK'), (revision.uniqueFields[name] || []).includes(field), `${name}.${field} uniqueness`);
   }
 }
 const sourceEdges = [...mermaid.matchAll(/^    (\w+) (\|[|o])\.\.(o[|{]) (\w+) : (\w+)$/gm)].map(([, from, parent, child, to, field]) => `${from}|${to}|${field}|${parent}|${child}`).sort();
 assert.deepEqual(model.relationships.map((edge) => `${edge.source}|${edge.target}|${edge.label}|${edge.parentOptional ? '|o' : '||'}|${edge.childUnique ? 'o|' : 'o{'}`).sort(), sourceEdges);
-assert.equal(model.relationships.filter(edge => edge.omittedInReference).length, 55);
-assert.equal(model.relationships.filter(edge => !edge.omittedInReference).length, 54);
-assert.deepEqual(model.relationships.filter(edge => edge.childUnique).map(edge => `${edge.target}.${edge.label}`).sort(), ['activity.calendar_entry_id', 'certificate_rule.activity_id', 'participant_profile.user_id']);
-assert.ok(!model.tables.some(t => ['program_flow', 'output', 'output_photo'].includes(t.id)), 'Superseded v2 tables should be replaced');
-console.log('PASS: v3 source hash, 46 tables, 355 fields, constraints, and 109 relationships (54 drawn + 55 omitted links).');
+assert.equal(model.relationships.filter(edge => edge.omittedInReference).length, 18);
+assert.equal(model.relationships.filter(edge => !edge.omittedInReference).length, 60);
+assert.deepEqual(model.relationships.filter(edge => edge.childUnique).map(edge => `${edge.target}.${edge.label}`).sort(), ['activity.calendar_entry_id', 'certificate_rule.activity_id']);
+assert.ok(model.tables.find(table => table.id === 'activity').rows.some(row => row.cells[1].value === 'objective'));
+assert.ok(!model.tables.some(table => table.rows.some(row => row.cells[1].value === 'objectives')));
+console.log('PASS: source hashes, 31 tables, 213 fields, v2 constraints, and 78 relationships (60 drawn + 18 tenant links).');
 
 vm.runInNewContext(await readFile(path.join(root, 'layout.js'), 'utf8'), context);
 const layout = JSON.parse(JSON.stringify(context.window.TMIS_LAYOUT));
@@ -86,6 +75,7 @@ const extent = tables => {
 };
 assert.ok(extent(layout.tables) < extent(model.tables) * .80, 'Layout should remove at least 20% of the overall area');
 console.log('PASS: compact layout, unchanged table/cell sizes and contents, preserved ordering, and unmodified source geometry.');
+
 
 const candidates = [process.env.TMIS_BROWSER, 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe', 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe', '/usr/bin/chromium', '/usr/bin/google-chrome'].filter(Boolean);
 let browserPath;
@@ -177,7 +167,7 @@ try {
   await send('Page.navigate', { url: pathToFileURL(path.join(root, 'index.html')).href });
   let loaded = false;
   for (let i = 0; i < 100; i++) {
-    if (await evaluate('document.querySelectorAll(".diagram-table").length === 46')) { loaded = true; break; }
+    if (await evaluate('document.querySelectorAll(".diagram-table").length === 31')) { loaded = true; break; }
     await delay(50);
   }
   assert.ok(loaded, 'The local viewer did not load.');
@@ -195,7 +185,7 @@ try {
   assert.equal(await evaluate('document.querySelector("#diagram").getAttribute("viewBox")'), initialCamera, 'Opening explorer must not resize or move diagram');
   await leaveExplorer();
   console.log('PASS: dark full-window canvas and left-edge reveal/hide without camera changes.');
-  assert.deepEqual(await evaluate('({tables:document.querySelectorAll(".diagram-table").length,edges:document.querySelectorAll(".edge").length,fields:document.querySelectorAll(".field-row").length})'), { tables: 46, edges: 109, fields: 355 });
+  assert.deepEqual(await evaluate('({tables:document.querySelectorAll(".diagram-table").length,edges:document.querySelectorAll(".edge").length,fields:document.querySelectorAll(".field-row").length})'), { tables: 31, edges: 78, fields: 213 });
   const interactionResults = await evaluate(`(() => {
     const m = window.TMIS_MODEL;
     const assert = (condition, message) => { if (!condition) throw Error(message); };
@@ -210,7 +200,7 @@ try {
       const actual = query('.edge.is-active').map(el => el.dataset.edge).sort();
       assert(JSON.stringify(actual) === JSON.stringify(expected.map(e => e.id).sort()), 'Wrong adjacency: '+table.id);
       assert(query('.diagram-table.is-selected').length === 1, 'Table selection failed');
-      assert(query('.diagram-table.is-connected').length === new Set(expected.flatMap(e => [e.source,e.target]).filter(id => id !== table.id)).size, 'Neighbor selection failed');
+      assert(query('.diagram-table.is-connected').length === new Set(expected.flatMap(e => [e.source,e.target])).size - 1, 'Neighbor selection failed');
     }
     for (const edge of m.relationships) {
       const node = query('.edge').find(el => el.dataset.edge === edge.id);
@@ -258,7 +248,7 @@ try {
     const search = document.querySelector('#search');
     search.value = 'client_id'; search.dispatchEvent(new Event('input'));
     return [...document.querySelectorAll('.table-item')].filter(el => getComputedStyle(el).display !== 'none').map(el => el.dataset.table);
-  })()`), ['attendance', 'feedback', 'output_submission', 'reentry_plan']);
+  })()`), ['attendance', 'feedback', 'reentry_plan']);
   await evaluate(`document.querySelector('#search').value = 'not_a_real_table'; document.querySelector('#search').dispatchEvent(new Event('input'))`);
   assert.equal(await evaluate('getComputedStyle(document.querySelector(".empty-search")).display !== "none"'), true);
   await evaluate(`document.querySelector('#search').value = ''; document.querySelector('#search').dispatchEvent(new Event('input'))`);

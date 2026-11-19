@@ -1,45 +1,62 @@
 # TMIS data model
 
-Open **index.html** in Chrome, Edge, or Firefox. The interactive viewer works offline without installation or a server.
+Open **index.html** in Chrome, Edge, or Firefox. No installation, build, server, or internet connection is required for the interactive viewer.
 
 ## Explore
 
-- Move near the left edge or the **TMIS** handle to reveal the table explorer. On touchscreens, tap the handle and tap outside to dismiss it.
-- Click a table or field to trace its relationships. Click a relationship or its label to highlight the matching primary and foreign keys.
-- Search by table, field, or type. Select a result to zoom to the table. The Selection panel shows constraints, notes, and relationships.
-- Drag to pan, scroll or pinch to zoom. **Fit all** shows the complete diagram; **Focus selection** fits the selected connections.
-- Use the theme button to switch between light and dark mode, or **⛶** to enter full screen.
-- Keyboard: **/** opens search, **F** fits all, **+ / −** zooms, **0** restores actual size, and **Escape** clears selection. Tab to a table or relationship and press Enter/Space to select it. Arrow keys pan the focused diagram.
+- The dark diagram fills the window. Move near the left edge or the **TMIS** handle to reveal the tables and relationships panel; move away to hide it. On touchscreens, tap the handle and tap outside to dismiss. The panel overlays the canvas without resizing it.
+- Click any table (including a field) to subtly highlight its direct relationships and connected tables. Tables remain fully opaque; unrelated relationship lines stay at 40%. Hovering an unrelated line restores its full visibility.
+- Click a relationship line or its label to highlight that exact relationship, both tables, and the matching PK/FK rows. Parallel relationships remain distinct.
+- Use the table list to select and zoom to a table. Search by table name, field, or type; Enter opens the first match.
+- Use the Selection panel to inspect and select relationships. **Focus selection** fits all highlighted tables and paths into view.
+- Drag to pan, scroll or pinch to zoom, and use **Fit all** to return to the complete diagram.
+- Use **⛶** in the top-right controls for browser full screen. The viewer always fills its window even outside full-screen mode.
+- Click the canvas background, **Clear**, or press **Escape** to clear highlighting.
+- Keyboard: **/** opens the panel and focuses search, **F** fits all, **+ / −** zooms, **0** restores actual size. Tab to a table or relationship and press Enter/Space to select it. Arrow keys pan while the diagram is focused. The panel stays open during keyboard navigation; **Escape** closes it and clears selection.
 
 ## Model contents
 
-The viewer uses **schema v3: 46 tables, 355 fields, and 109 foreign keys**, transcribed from the supplied TMIS Logical Data Model image. The reference draws **54 relationships** and omits tenant and most user connectors for readability. All foreign keys remain available in the viewer and Mermaid export.
+The viewer contains **schema v2: 31 tables, 213 fields, and 78 foreign-key relationships**, updated from the supplied TMIS Logical Data Model image. The reference draws 60 relationships and marks 18 additional tenant foreign keys with omitted lines; all 78 remain explorable. Empty bands between table groups are compacted, with connector routes moved alongside them. Table sizes, cell dimensions, font sizes, relative ordering, colors, and interaction controls are preserved. Original geometry remains in the generated model.
 
-The diagram follows the reference's five-column table groups: tenancy and people, platform administration, planning, activities, delivery, finance, outputs, and messaging. Empty space is compacted without resizing table cells or text.
+Content changes from v1:
 
-Changes from v2 include agency applications and documents, audit logs, platform settings and defaults, participant profiles and categories, agency roles and subscriptions, category questions and membership answers, notifications, separate activity objectives and outcomes, materials, feedback questions and answers, and output submissions. Session scheduling replaces `program_flow`; `output_submission` replaces the old `output` / `output_photo` structure. Existing tables include the updated v3 fields, types, keys, and nullability.
+- Logical types: `char(36)` → `uuid`, `tinyint(1)` → `bool`, `int(11)` → `int`. Decimal precision is unchanged.
+- `activity.objectives` → `activity.objective`.
+- 11 single-field UNIQUE constraints, including unique foreign keys on `activity.calendar_entry_id` and `certificate_rule.activity_id`. These relationships now show a maximum of one child.
+- Nullable fields from the reference use italic names and explicit inspector text. Nullable foreign keys have optional-parent markers.
+- Composite uniqueness for `session(activity_id, session_date, period)` and `activity_partner(activity_id, partner_agency_id)`, agency category values, `AM | PM` session periods and `program_flow.end_time > start_time` appear in the notes/inspector and Mermaid export.
 
-`PK` indicates a primary key, `FK` a foreign key, and `UK` a unique field. Nullable names are italic; constraints and table notes also appear in the inspector. `client_id` supports offline synchronization and does not reference another table. This project presents a logical schema; it does not migrate a database.
+No tables, fields or foreign-key connections were added or removed. Child minimum counts remain zero where the image does not establish mandatory child existence. This updates the logical model presentation, not a database.
+
+`source/TMIS_data_model.drawio.html` remains a byte-for-byte archived v1 reference and uses the original external diagrams.net viewer. `source/TMIS-schema-v2.json` records the image transcription as content overrides. `source/TMIS-schema.mmd` is the current v2 Mermaid export.
 
 ## Files and maintenance
 
-- `index.html`, `styles.css`, `theme.js`, and `app.js` provide the offline SVG viewer.
-- `source/TMIS-schema-v3.json` is the editable v3 transcription, including fields, references, constraints, notes, groups, and table placement.
-- `scripts/generate-model.mjs` generates `model-data.js` and the downloadable `source/TMIS-schema.mmd` from that JSON.
-- `layout.js` compacts empty space while preserving table sizes and ordering.
-- `scripts/verify.mjs` checks all fields and relationships and exercises the viewer in installed Chrome/Edge.
-- `source/TMIS_data_model.drawio.html` and `source/TMIS-schema-v2.json` remain archived references.
+- `index.html` — app shell and relationship markers.
+- `styles.css` — responsive layout and selection styles.
+- `app.js` — SVG rendering, graph selection, search, and camera controls.
+- `layout.js` — compacts empty space and connector lanes without resizing tables or text.
+- `model-data.js` — compact, generated model. Loaded as a regular local script so opening the folder works without a web server.
+- `source/` — archived draw.io, v2 content overrides and current Mermaid export.
+- `scripts/extract-model.ps1` — regenerates the model and Mermaid from archived draw.io geometry plus v2 content overrides (PowerShell 7+).
+- `scripts/verify.mjs` — checks model contents and uses an installed Chrome/Edge for browser interaction tests.
 
-After editing the v3 JSON, regenerate and validate with Node.js 22+:
+The implementation uses native JavaScript and SVG. It renders the diagram once, indexes relationships by table, delegates click handlers, and batches camera updates with `requestAnimationFrame`. It has no runtime dependencies or remote font/script requests.
+
+After editing `source/TMIS-schema-v2.json`, regenerate from this folder with PowerShell 7+:
 
 ```powershell
-node scripts/generate-model.mjs
-node scripts/generate-model.mjs --check
+./scripts/extract-model.ps1
+```
+
+Verify preservation and browser behavior (Node.js 22+ and installed Chrome/Edge):
+
+```powershell
+./scripts/extract-model.ps1 -Check
 node scripts/verify.mjs
 ```
 
-The existing `./scripts/extract-model.ps1` command delegates to the v3 generator; `-Check` verifies generated files without changing them.
+The browser check uses a temporary profile and closes its own browser afterwards. Set `TMIS_BROWSER` to a browser executable path if automatic discovery does not find one.
 
-Browser verification uses a temporary profile and closes its own browser afterward. Set `TMIS_BROWSER` to the browser executable if automatic discovery cannot find Chrome or Edge. Screenshots are saved in the temporary `tmis-datamodel-qa` directory, or the directory specified by `TMIS_QA_DIR`.
 # data-model
 # data-model
