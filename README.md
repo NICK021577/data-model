@@ -42,3 +42,4 @@ The existing `./scripts/extract-model.ps1` command delegates to the v3 generator
 
 Browser verification uses a temporary profile and closes its own browser afterward. Set `TMIS_BROWSER` to the browser executable if automatic discovery cannot find Chrome or Edge. Screenshots are saved in the temporary `tmis-datamodel-qa` directory, or the directory specified by `TMIS_QA_DIR`.
 # data-model
+# data-model
